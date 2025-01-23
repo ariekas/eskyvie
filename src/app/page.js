@@ -1,103 +1,82 @@
 "use client";
-import { useState } from "react";
-import axios from "axios";
+import { useState } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation'; // Import useRouter for navigation
 
-export default function Home() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "",
-  });
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const router = useRouter();
 
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
+
+    if (!email || !password) {
+      setMessage('Email dan password harus diisi!');
+      return;
+    }
 
     try {
-      const response = await axios.post("http://localhost:3005/users/register", formData);
-
-      if (response.status === 201) {
-        setMessage("Registrasi berhasil! Silakan login.");
-      }
-    } catch (err) {
-      if (err.response) {
-        setError(err.response.data.message || "Registrasi gagal!");
-      } else {
-        setError("Terjadi kesalahan pada server.");
-      }
+      const response = await axios.post('http://localhost:3007/users/login', { email, password });
+      setMessage(response.data.message);
+      // Simpan token di localStorage atau context state
+      localStorage.setItem('token', response.data.data.token);
+    } catch (error) {
+      setMessage(error.response?.data?.message || 'Terjadi kesalahan pada server.');
     }
   };
 
+  const navigateToForgotPassword = () => {
+    router.push('/forget-password'); // Navigate to the forgot password page
+  };
+
+  const navigateToAdmin = () => {
+    router.push('/admin');
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-        {message && <p className="text-green-500 text-center">{message}</p>}
-        {error && <p className="text-red-500 text-center">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="bg-white shadow-lg rounded-lg p-8 max-w-sm w-full">
+        <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Login</h2>
+        {message && <p className="text-center text-red-500 mb-4">{message}</p>}
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block mb-1 text-gray-600">Nama</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-gray-600">Email</label>
+            <label className="block text-gray-600 mb-1">Email</label>
             <input
               type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Masukkan email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div>
-            <label className="block mb-1 text-gray-600">Password</label>
+            <label className="block text-gray-600 mb-1">Password</label>
             <input
               type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Masukkan password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
-          </div>
-          <div>
-            <label className="block mb-1 text-gray-600">Role</label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            >
-              <option value="">Pilih Role</option>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
+            className="w-full bg-indigo-500 text-white py-3 rounded-lg hover:bg-indigo-600 transition duration-300"
+            onClick={navigateToAdmin}
           >
-            Register
+            Login
           </button>
         </form>
+        <div className="text-center mt-4">
+          <button
+            className="text-indigo-500 hover:underline"
+            onClick={navigateToForgotPassword} // Navigate on click
+          >
+            Lupa password?
+          </button>
+        </div>
       </div>
     </div>
   );
