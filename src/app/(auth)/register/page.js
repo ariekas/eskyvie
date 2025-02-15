@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 const registerPage = () => {
@@ -12,6 +13,7 @@ const registerPage = () => {
       const [message, setMessage] = useState('');
       const [loading, setLoading] = useState(false);
       const [success, setSuccess] = useState(false);
+      const router = useRouter();
     
       const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -79,6 +81,11 @@ const registerPage = () => {
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
               </select>
+            <div className='flex items-center'>
+            <button onClick={() => router.push('/')}>
+              have account?
+            </button>
+            </div>
               <button
                 type="submit"
                 className={`w-full bg-purple-500 text-white p-3 rounded hover:bg-purple-600 transition-all duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -89,7 +96,7 @@ const registerPage = () => {
             </form>
             {success && (
               <div className="mt-4 text-center">
-                <p className="text-green-500">Registrasi berhasil! Anda akan diarahkan...</p>
+                <p className="text-green-500">Registrasi berhasil! Anda akan diarahkan ke <a href="/" className="text-blue-500 underline">halaman utama</a>...</p>
               </div>
             )}
           </div>
